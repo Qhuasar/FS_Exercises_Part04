@@ -7,7 +7,10 @@ const MONGO_URI =
 
 const PORT = process.env.PORT;
 
+const SECRET = process.env.SECRET
+
 module.exports = {
   MONGO_URI,
   PORT,
+  SECRET
 };

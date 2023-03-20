@@ -9,21 +9,39 @@ const requestLogger = (request, response, next) => {
 };
 
 const errorHandler = (error, req, res, next) => {
-  logger.error(JSON.parse(JSON.stringify(error)));
+  //logger.error(JSON.parse(JSON.stringify(error)));
   switch (error.name) {
     case "ValidationError":
-      res.status(400).end();
+      res.status(400).json({ error: error.message });
       break;
     case "CastError":
       res.statusMessage = "Malformed id";
-      res.status(400).end();
+      res.status(400).json({ error: error.message });
+      break;
+    case "JsonWebTokenError":
+      res.status(400).json({ error: error.message });
+      break;
     default:
       next(error);
   }
   next(error);
 };
 
+const getTokenFrom = (request, response, next) => {
+  const authorization = request.get("authorization");
+  if (authorization && authorization.startsWith("bearer ")) {
+    request.token = authorization.replace("bearer ", "");
+    next();
+  } else {
+    request.token = null;
+    next();
+  }
+};
+
+module.exports = { getTokenFrom };
+
 module.exports = {
   requestLogger,
   errorHandler,
+  getTokenFrom,
 };

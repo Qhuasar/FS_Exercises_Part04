@@ -1,4 +1,26 @@
 const Blog = require("../models/Blog");
+const bcrypt = require("bcrypt");
+
+const initialUsers = [
+  {
+    username: "UncleBob",
+    name: "Robert C. Martin",
+    passwordHash: "testing",
+    blogs: [],
+  },
+  {
+    username: "Dijkstra",
+    name: "Edsger W. Dijkstra",
+    passwordHash: "testing01",
+    blogs: [],
+  },
+  {
+    username: "thisChan",
+    name: "Michael Chan",
+    passwordHash: "testing 03",
+    blogs: [],
+  },
+];
 
 const initialBlogs = [
   {
@@ -67,5 +89,6 @@ module.exports = {
   initialBlogs,
   BlogsInDb,
   nonExistingId,
-  newBlogInDB
+  newBlogInDB,
+  initialUsers,
 };
