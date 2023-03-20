@@ -2,7 +2,12 @@ const mongoose = require("mongoose");
 const Blog = require("../models/Blog");
 const supertest = require("supertest");
 const { app } = require("../app");
-const { initialBlogs, BlogsInDb, nonExistingId } = require("./tests_helpers");
+const {
+  initialBlogs,
+  BlogsInDb,
+  nonExistingId,
+  newBlogInDB,
+} = require("./tests_helpers");
 const api = supertest(app);
 
 beforeEach(async () => {
@@ -105,8 +110,8 @@ describe("post requests", () => {
     await api.post("/api/blogs").send(newBlog).expect(400);
   });
 });
-describe("delete one note", () => {
-  test("deletes one note", async () => {
+describe("delete one blog", () => {
+  test("deletes one blog", async () => {
     const blogsToBeDeleted = await BlogsInDb();
     await api.delete(`/api/blogs/${blogsToBeDeleted[0].id}`).expect(204);
     const blogsMinusOne = await BlogsInDb();
@@ -123,9 +128,50 @@ describe("delete one note", () => {
   });
 });
 
-describe("update one note", () => {
-  
-})
+describe("update one blog", () => {
+  const updatedBlog = {
+    title: "On the Nature of good testing and Clean Code",
+    author: "Arto Hellas",
+    url: "/localhost/3001",
+    likes: 12,
+  };
+  test("updates one notes correctly", async () => {
+    const testBlog = await newBlogInDB();
+    await api.put(`/api/blogs/${testBlog.id}`).send(updatedBlog).expect(200);
+    const currentDB = await BlogsInDb();
+    expect(currentDB.map(({ id, ...blog }) => blog)).toContainEqual(
+      updatedBlog
+    );
+  });
+
+  test("returns correct blog object", async () => {
+    const testBlog = await newBlogInDB();
+    const updResponse = await api
+      .put(`/api/blogs/${testBlog.id}`)
+      .send(updatedBlog)
+      .expect(200);
+    const currentDB = await BlogsInDb();
+    expect(currentDB).toContainEqual(updResponse.body);
+  });
+
+  test("updates likes correclty", async () => {
+    const testBlog = await newBlogInDB();
+    const updResponse = await api
+      .put(`/api/blogs/${testBlog.id}`)
+      .send(updatedBlog)
+      .expect(200);
+    expect(updResponse.body.likes).toBe(updatedBlog.likes);
+  });
+
+  test("handles malformed id type", async () => {
+    await api.put(`/api/blogs/abc123`).expect(400);
+  });
+
+  test("handles correct non-existing id type", async () => {
+    const fakeId = await nonExistingId();
+    await api.put(`/api/blogs/${fakeId}`).expect(404);
+  });
+});
 
 afterAll(async () => {
   await mongoose.connection.close();

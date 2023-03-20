@@ -21,6 +21,8 @@ app.use(requestLogger);
 app.get("/api/blogs", blogRouter);
 app.post("/api/blogs", blogRouter);
 app.delete("/api/blogs/:id", blogRouter);
+app.put("/api/blogs/:id", blogRouter);
+
 
 app.use(errorHandler);
 

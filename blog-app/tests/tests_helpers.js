@@ -44,6 +44,17 @@ const BlogsInDb = async () => {
   return notes.map((Blogs) => Blogs.toJSON());
 };
 
+const newBlogInDB = async () => {
+  const blog = new Blog({
+    title: "On the Nature of good testing",
+    author: "Arto Helas",
+    url: "/localhost/3003",
+    likes: 42,
+  });
+  await blog.save();
+  return blog;
+};
+
 const nonExistingId = async () => {
   const blog = new Blog({ title: "fordelition", url: "for delition" });
   await blog.save();
@@ -56,4 +67,5 @@ module.exports = {
   initialBlogs,
   BlogsInDb,
   nonExistingId,
+  newBlogInDB
 };
