@@ -8,7 +8,22 @@ const requestLogger = (request, response, next) => {
   next();
 };
 
+const errorHandler = (error, req, res, next) => {
+  logger.error(JSON.parse(JSON.stringify(error)));
+  switch (error.name) {
+    case "ValidationError":
+      res.status(400).end();
+      break;
+    case "CastError":
+      res.statusMessage = "Malformed id";
+      res.status(400).end();
+    default:
+      next(error);
+  }
+  next(error);
+};
 
 module.exports = {
   requestLogger,
+  errorHandler,
 };
