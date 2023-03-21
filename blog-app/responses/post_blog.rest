@@ -1,9 +1,0 @@
-POST http://localhost:3003/api/blogs
-Content-Type: application/json
-
-{
-    "title":"On the Nature of code",
-    "author":"Arto Helas",
-    "url":"/localhost/3003",
-    "likes":4
-}

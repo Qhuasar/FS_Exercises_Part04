@@ -1,0 +1,10 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlF1YXphciIsImlkIjoiNjQxOGRiMGE4ODAxZTNlNjQ2ZmIzOWNmIiwiaWF0IjoxNjc5MzUwNjY1fQ.yS9c54HVfRuWPEtHaY0Lsu9HA1wi776gz28pF8i_7-4
+
+{
+    "title":"The downfall of backend",
+    "author":"Martin O'Martin",
+    "url":"https://misterClean.com",
+    "likes":4
+}
