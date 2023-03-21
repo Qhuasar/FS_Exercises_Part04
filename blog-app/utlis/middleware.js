@@ -1,4 +1,6 @@
 const logger = require("./logger");
+const jwt = require("jsonwebtoken");
+const { SECRET } = require("../utlis/config");
 
 const requestLogger = (request, response, next) => {
   logger.info("Method:", request.method);
@@ -21,6 +23,11 @@ const errorHandler = (error, req, res, next) => {
     case "JsonWebTokenError":
       res.status(400).json({ error: error.message });
       break;
+    case "Authorization":
+      res.status(403).json({ error: error.message });
+      break;
+    case "TokenExpiredError":
+      res.status(401).json({ error: "expired token" });
     default:
       next(error);
   }
@@ -38,10 +45,25 @@ const getTokenFrom = (request, response, next) => {
   }
 };
 
+const userExtractor = async (request, response, next) => {
+  try {
+    const decodedToken = jwt.verify(request.token, SECRET);
+    if (!decodedToken.id) {
+      response.status(401).json({ error: "token invalid" });
+    } else {
+      request.user = decodedToken.id;
+      next();
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = { getTokenFrom };
 
 module.exports = {
   requestLogger,
   errorHandler,
   getTokenFrom,
+  userExtractor,
 };

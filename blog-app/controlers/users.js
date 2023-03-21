@@ -4,12 +4,12 @@ const User = require("../models/User");
 const logger = require("../utlis/logger");
 const { checkPassword } = require("../utlis/password_checker");
 
-usersRouter.get("/api/users", async (request, response) => {
+usersRouter.get("/", async (request, response) => {
   const users = await User.find({}).populate("blogs");
   response.status(200).json(users);
 });
 
-usersRouter.post("/api/users", async (request, response, next) => {
+usersRouter.post("/", async (request, response, next) => {
   try {
     const { username, password, name } = request.body;
     checkPassword(password, next);

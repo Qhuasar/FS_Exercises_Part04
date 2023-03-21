@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Blog = require("../models/Blog");
+const User = require("../models/User");
 const supertest = require("supertest");
 const { app } = require("../app");
 const {
@@ -7,11 +8,20 @@ const {
   BlogsInDb,
   nonExistingId,
   newBlogInDB,
+  initialUsers,
+  loginUser,
 } = require("./tests_helpers");
 const api = supertest(app);
 
 beforeEach(async () => {
   await Blog.deleteMany({});
+  await User.deleteMany({});
+
+  for (let user of initialUsers) {
+    const newUser = new User(user);
+    await newUser.save();
+  }
+
   for (let blog of initialBlogs) {
     const newBlogObj = new Blog(blog);
     await newBlogObj.save();
@@ -40,6 +50,8 @@ describe("get requests", () => {
 });
 
 describe("post requests", () => {
+  const testUser = { _id: "5a422ba71b54a676234d17fb", username: "UncleBob" };
+  const token = loginUser(testUser);
   test("adds valid blog", async () => {
     const newBlog = {
       title: "On the Nature of good testing",
@@ -49,12 +61,13 @@ describe("post requests", () => {
     };
     await api
       .post("/api/blogs")
+      .set("Authorization", `bearer ${token}`)
       .send(newBlog)
       .expect(201)
       .expect("Content-Type", /application\/json/);
     const getRes = await api.get("/api/blogs");
     //const authors = getRes.body.map((blog) => blog.author);
-    const authors = getRes.body.map(({ id, ...blog }) => blog);
+    const authors = getRes.body.map(({ id, user, ...blog }) => blog);
     expect(authors).toContainEqual(newBlog);
   });
 
@@ -67,6 +80,7 @@ describe("post requests", () => {
     };
     await api
       .post("/api/blogs")
+      .set("Authorization", `bearer ${token}`)
       .send(newBlog)
       .expect(201)
       .expect("Content-Type", /application\/json/);
@@ -82,6 +96,7 @@ describe("post requests", () => {
     };
     await api
       .post("/api/blogs")
+      .set("Authorization", `bearer ${token}`)
       .send(newBlog)
       .expect(201)
       .expect("Content-Type", /application\/json/);
@@ -98,7 +113,11 @@ describe("post requests", () => {
       url: "/localhost/3003",
       likes: 42,
     };
-    await api.post("/api/blogs").send(newBlog).expect(400);
+    await api
+      .post("/api/blogs")
+      .set("Authorization", `bearer ${token}`)
+      .send(newBlog)
+      .expect(400);
   });
 
   test("url property missing responds with 400", async () => {
@@ -107,13 +126,23 @@ describe("post requests", () => {
       author: "Arto Helas",
       likes: 42,
     };
-    await api.post("/api/blogs").send(newBlog).expect(400);
+    await api
+      .post("/api/blogs")
+      .set("Authorization", `bearer ${token}`)
+      .send(newBlog)
+      .expect(400);
   });
 });
-describe("delete one blog", () => {
+describe.only("blog deletion functionality", () => {
+  const testUser = { _id: "5a422b891b54a676234d17fa", username: "thisChan" };
+  const token = loginUser(testUser);
+
   test("deletes one blog", async () => {
     const blogsToBeDeleted = await BlogsInDb();
-    await api.delete(`/api/blogs/${blogsToBeDeleted[0].id}`).expect(204);
+    await api
+      .delete(`/api/blogs/${blogsToBeDeleted[0].id}`)
+      .set("Authorization", `bearer ${token}`)
+      .expect(204);
     const blogsMinusOne = await BlogsInDb();
     expect(blogsMinusOne.length).toBe(initialBlogs.length - 1);
   });
@@ -124,7 +153,10 @@ describe("delete one blog", () => {
 
   test("handles correct non-existing id type", async () => {
     const fakeId = await nonExistingId();
-    await api.delete(`/api/blogs/${fakeId}`).expect(404);
+    await api
+      .delete(`/api/blogs/${fakeId}`)
+      .set("Authorization", `bearer ${token}`)
+      .expect(404);
   });
 });
 
