@@ -1,11 +1,9 @@
 const dummy = (blogs) => 1;
 
-const totalLikes = (blogs) => {
-  return blogs.reduce(
-    (prevVal, blog) => (blog.likes ? blog.likes + prevVal : prevVal + 0),
-    0
-  );
-};
+const totalLikes = (blogs) => blogs.reduce(
+  (prevVal, blog) => (blog.likes ? blog.likes + prevVal : prevVal + 0),
+  0,
+);
 
 const favoriteBlog = (blogs) => {
   const likes = blogs.map((blog) => blog.likes);
@@ -14,15 +12,15 @@ const favoriteBlog = (blogs) => {
 };
 
 const mostBlogs = (blogs) => {
-  //check parameter for Blog type objects and determines which author as the most blogs
+  // check parameter for Blog type objects and determines which author as the most blogs
   try {
     const authors = blogs.map((blog) => blog.author);
     let authorObjs = [];
     authors.forEach((author) => {
       const authorObj = authorObjs.find((obj) => author === obj.author);
-      //check if author is already in obj arry and if author exists
+      // check if author is already in obj arry and if author exists
       if (authorObj === undefined && author) {
-        authorObjs = authorObjs.concat({ author: author, blogs: 1 });
+        authorObjs = authorObjs.concat({ author, blogs: 1 });
       } else if (author !== undefined) {
         authorObj.blogs += 1;
       }
@@ -48,7 +46,7 @@ const mostLikes = (blogs) => {
       } else if (blog.author) {
         likeObj.likes += blog.likes;
       } else {
-        throw new Error("Object missing proprieties");
+        throw new Error('Object missing proprieties');
       }
     });
     const maxLikes = Math.max(...likesObjs.map((obj) => obj.likes));
