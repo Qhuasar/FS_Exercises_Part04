@@ -7,7 +7,7 @@ const User = require('../models/User');
 loginRouter.post('/', async (request, response) => {
   const { username, password } = request.body;
   const user = await User.findOne({ username });
-  const pwCorrect = user === null ? false : bcrypt.compare(password, user.passwordHash);
+  const pwCorrect = user === null ? false : await bcrypt.compare(password, user.passwordHash);
   if (!(user && pwCorrect)) {
     return response
       .status('401')
